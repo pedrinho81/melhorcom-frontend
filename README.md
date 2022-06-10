@@ -1,7 +1,10 @@
 # Melhor com
 
 
-
+TECHS USADAS 
+Vite
+Axios
+React-router-dom
 ## Em breve um README...
 
 

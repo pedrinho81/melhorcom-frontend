@@ -8,6 +8,9 @@ module.exports = {
     extend: {},
     fontFamily: {
       'nunito': ['Nunito']
+    },
+    screens: {
+      'laptop': '1024px'
     }
   },
   plugins: [],
