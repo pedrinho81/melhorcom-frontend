@@ -5,7 +5,7 @@ import {
   Route,
 } from "react-router-dom";
 
-import PhoneList from "./pages/phoneList";
+import PhoneList from "./pages/Home";
 import AddPhone from "./pages/addPhone";
 import UpdatePhone from "./pages/updatePhone";
 import DeletePhone from "./pages/deletePhone";
@@ -18,7 +18,7 @@ export default function RoutesS() {
     <Routes>
       <Route path="/" element={<PhoneList />} />
       <Route path="add-phone" element={<AddPhone />} />
-      <Route path="update-phone" element={<UpdatePhone />} />
+      <Route path="update-phone/:_id" element={<UpdatePhone />} />
       <Route path="delete-phone" element={<DeletePhone />} />
       <Route path="*" element={<Page404/> }
     />

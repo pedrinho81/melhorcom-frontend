@@ -1,5 +1,6 @@
-export default function deletePhone() {
+export default function deletePhone({iconAdd}) {
+    console.log(iconAdd)
     return(
-        <h1>tela de deletar celulares</h1>
+        <p>oi</p>
     )
 }

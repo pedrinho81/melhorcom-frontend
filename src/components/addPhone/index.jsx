@@ -1,6 +1,7 @@
 import { useState } from "react"
-import api from "../services/api"
+import api from "../../services/api"
 import { Link } from "react-router-dom"
+import InputMask from "react-input-mask"
 
 export default function AddPhone() {
     const [values, setValues] = useState({
@@ -14,14 +15,12 @@ export default function AddPhone() {
     })
 
 
-
     const handleChangeValues = (value) => {
         setValues(prevValue => ({
             ...prevValue,
             [value.target.name]: value.target.value,
         }));
     }
-
 
 
     const [status, setStatus] = useState({
@@ -39,30 +38,18 @@ export default function AddPhone() {
 
 
         const saveDataForm = () => {
-            const startDate = () => {
-                const invalidStartDate = values.date
-                const [day, month, year] = invalidStartDate.split("-")
-                const date = `${day}/${month}/${year}`
-                return date
-            }
-            const endDate = () => {
-                const invalidendDate = values.date
-                const [day, month, year] = invalidendDate.split("-")
-                const date = `${day}/${month}/${year}`
-                return date
-            }
             try {
                 const startDate = () => {
                     const invalidStartDate = values.date
                     const [year, month, day] = invalidStartDate.split("-")
-                    const date = `${day}/${month}/${year}`
-                    return date
+                    const validStartDate = `${day}/${month}/${year}`
+                    return validStartDate
                 }
                 const endDate = () => {
                     const invalidendDate = values.endDate
                     const [year, month, day] = invalidendDate.split("-")
-                    const date = `${day}/${month}/${year}`
-                    return date
+                    const validEndDate = `${day}/${month}/${year}`
+                    return validEndDate
                 }
                 api.post("/phone", {
                     model: values.model,
@@ -73,10 +60,13 @@ export default function AddPhone() {
                     endDate: endDate(),
                     code: values.code
                 })
-                
+                .then(res => res.status != 200 ?  alert("Ops, tivemos erros internos, tente novamente") : alert("Produto cadastrado com sucesso!"))
                 return true
-            } catch (error) {
+                 
                 
+            } catch (error) {
+                alert("Erro ao cadastrar, por favor, verique todos os campos! ")
+                setStatus({type: "error", message: "Por favor, verifique a autenticidade de todos os campso!"})
                 return false
             }
         };
@@ -89,24 +79,18 @@ export default function AddPhone() {
             if (!values.color) return setStatus({ type: "error", message: "Erro: o campo Cor deve ser selecionado" })
 
             function isValidateDate(inputStartDate, inputEndDate) {
-               
-                let a = new Date(inputStartDate)
-               
-                let b = Date.parse(a)
-                
+
                 const convertInitDate = new Date(inputStartDate);
                 const convertFinalDate = new Date(inputEndDate);
-                const startDateLimit = 1545696000000   //DEFININDO EM MILISEGUNDOS A DATA DE 25/12/2018 COMO LIMITE 
+                const startDateLimit = 1546221600000 //DEFININDO EM MILISEGUNDOS A DATA DE 31/12/2018 COMO LIMITE 
                 const startDate = Date.parse(convertInitDate)
                 const finalDate = Date.parse(convertFinalDate) //PEGANDO O INPUT DO USUÁRIO EM MILISECUNDOS PARA SER POSSÍVEL COMPARAR COM A DATA INICIAL
 
 
-                if (!startDate || !finalDate) return console.log("preencha as datas corretamente");
+                if (!startDate || !finalDate) return alert("preencha as datas corretamente");
                 if (startDate > startDateLimit && finalDate > startDate) {
-                    console.log("Data correta!");
                     return true;
                 } else {
-                    setStatus({ type: "Error", message: "o campo Data deve ser preenchido corretamente!  Verifique os possíveis erros:  1 - Início das vendas inferior a 16/12/2018  2 - Fim das vendas inferior a Início das vendas  3 - Dados inseridos no formato diferente de (DD/MM/YYYY)" });
                     return false
                 }
 
@@ -115,20 +99,17 @@ export default function AddPhone() {
             if (isValidateDate(values.date, values.endDate) === true) {
                 return true
             } else {
+                alert("ERRO: O campo data precisa atender a alguns requisitos como: \n 1 - Início das vendas deve ser posterior a 31/12/2018 \n 2- Fim das vendas deve ser posterior ao campo Início das vendas \n 3 - Data deve ser inserida no formato (dd/MM/yyyy) ")
                 setStatus({ type: "error", message: "Preencha os campos de Data corretamente!" })
                 return false
             }
-
-
-
-            return true;
         }
 
-        
+
         if (saveDataForm()) {
             setStatus({
                 type: "success",
-                message: "Phone cadastrado com sucesso!"
+                message: "Produto cadastrado com sucesso!"
             });
             setValues({
                 model: "",
@@ -147,91 +128,83 @@ export default function AddPhone() {
         }
     }
     return (
-        <div className="flex flex-col justify-around gap-2">
+        <div className="flex flex-col justify-center my-auto  gap-2">
             <h1 className="text-center font-bold text-xl py-6">Detalhes do produto</h1>
-            {status.type === "success" ? <p style={{ color: "green" }}>{status.message}</p> : ""}
-            {status.type === "error" ? <p style={{ color: "red" }}>{status.message}</p> : ""}
-            <form onSubmit={addPhone}>
-                <div className="flex justify-between">
-                    <label className="">
-                        Modelo
+            <div className="">
+                {status.type === "success" ? <p className="text-center text-md text-green-600">{status.message}</p> : ""}
+                {status.type === "error" ? <p className="text-center text-md underline text-red-600">{status.message}</p> : ""}
+                <form onSubmit={addPhone}
+                    className="flex flex-wrap gap-7 justify-center  md:w-[85%]">
+                    <div className="flex flex-col gap-1 justify-between">
+                        <label className="font-semibold">Modelo</label>      
                         <input type="text"
                             name='model'
                             placeholder='XT2041-1'
                             value={values.model}
                             onChange={handleChangeValues}
-                            className="border-2" />
-                    </label>
+                            className="border-[1px] border-black w-48 rounded-[5px] py-2 placeholder:pl-2" />
 
-                    <label>
-                        Marca
-                        <input type="text"
-                            name='brand'
-                            placeholder='Motorola'
-                            value={values.brand}
-                            onChange={handleChangeValues}
-                            className="border-2" />
-                    </label>
-                </div>
-                <div className="flex justify-between">
-                    <label>
-                        Cor
+                        <label className="font-semibold">Cor </label>
                         <select name="color"
                             onChange={handleChangeValues}
                             value={values.color}
-                            className="border-2">
+                            className="border-[1px] border-black w-48 rounded-[5px] py-2 placeholder:pl-2">
                             <option value="">Selecione a cor</option>
                             <option value="BLACK">Preto</option>
                             <option value="WHITE">Branco</option>
                             <option value="GOLD">Dourado</option>
                             <option value="PINK">Rosa</option>
                         </select>
-                    </label>
 
-                    <label>
-                        Preço
-                        <input type="number"
-                            name='price'
-                            min={0}
-                            value={values.price}
-                            placeholder='1400,00'
-                            onChange={handleChangeValues}
-                            className="border-2" />
-                    </label>
-                </div>
-
-                <div className="flex justify-between">
-                    <label>
-                        Início das vendas
+                        <label className="font-semibold">Início das vendas</label>
                         <input type="date"
                             name='date'
                             value={values.date}
                             onChange={handleChangeValues}
-                            className="border-2"
+                            className="border-[1px] border-black w-48 rounded-[5px] py-2 placeholder:pl-2"
                             min={"25-12-2018"} />
-                    </label>
-                    <label>
-                        Fim das vendas
+                    </div>
+
+                    <div className="flex gap-1 mt-1 flex-col">
+                        <label className="font-semibold">Marca</label>
+                        <input type="text"
+                            name='brand'
+                            placeholder='Motorola'
+                            value={values.brand}
+                            onChange={handleChangeValues}
+                            className="border-[1px] border-black w-48 rounded-[5px] py-2 placeholder:pl-2" />
+
+                        <label className="font-semibold">Preço</label>
+                            <input type='number'                             
+                             name='price'
+                             min={0}
+                            
+                             value={values.price === 0 ? "" : values.price}
+                             placeholder='1499'
+                             onChange={handleChangeValues}
+                             className="border-[1px] border-black w-48 rounded-[5px] py-2 placeholder:pl-2" 
+                            />
+                        
+
+                        <label className="font-semibold">Fim das vendas</label>
                         <input type="date"
                             name='endDate'
                             value={values.endDate}
                             onChange={handleChangeValues}
-                            className="border-2" />
-                    </label>
-                </div>
-
-                <div className="flex justify-end">
-                    <button type="button" onClick={addPhone}>Cadastrar</button>
-
-
-
-
+                            className="border-[1px] border-black w-48 rounded-[5px] py-2 placeholder:pl-2" />       
+                    </div>
+                
+                </form>
+                <div className="flex justify-center mt-9 mb-14 laptop:ml-[13.6rem] gap-5">      
                     <Link to={"/"}>
-                        <button>Voltar</button>
+                        <button className="ml-1 font-semibold bg-[#DAE3ED] hover:bg-[#b7c2ce] transition-colors py-1 px-5 rounded-[5px] border-[1px] border-black">Voltar</button>
                     </Link>
+                    <button type="button" 
+                            className="font-semibold bg-[#DAE3ED] hover:bg-[#b7c2ce] transition-colors py-1 px-5 my-auto rounded-[5px] border-[1px] border-black"
+                            onClick={addPhone}>Salvar</button>
                 </div>
-            </form>
+            </div>
         </div>
-
+        
     )
 }
